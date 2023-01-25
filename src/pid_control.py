@@ -19,14 +19,13 @@ class PID():
         [qd,qdotd] = self.trajectory(time) #get desired angle and desired velocity
         q = self.senseAngle() # sense actual joint angle
         qdot = (q - self.qprev)/self.dt
-        q = self.qprev
 
         e = qd - q
         edot = qdotd - qdot
 
         eint = eint + e*self.dt #integral error
         tau = self.kp*e + self.kd*edot + self.ki*eint
-        self.time = self.time + self.dt
+        self.qprev = q
         return tau
 
     def ff_controller(self, time):
@@ -34,6 +33,20 @@ class PID():
         tau = self.Mtilde(qd)*qdotdotd + self.htilde(qd, qdotd)
         return tau
 
+    def ff_fb_controller(self,time):
+        [qd,qdotd,qdotdotd] = self.trajectory(time) #get desired angle and desired velocity
+        q = self.senseAngle() # sense actual joint angle
+        qdot = (q - self.qprev)/self.dt
+        ff_acc = qdotdotd
+
+        e = qd - q
+        edot = qdotd - qdot
+        eint = eint + e*self.dt #integral error
+        fb_acc = self.kp*e + self.kd*edot + self.ki*eint
+        tau = self.Mtilde(q)*(ff_acc+fb_acc) + self.htilde(q, qdot)
+
+        self.qprev = q
+        return tau
 
     def Mtilde(self, qd): 
         # inertia model
