@@ -28,9 +28,6 @@ class PID():
         tau = self.kp*e + self.kd*edot + self.ki*eint
         self.time = self.time + self.dt
         return tau
-
-        
-
     
     def antiWindUp(self):
         if self.windupMax != 0:
