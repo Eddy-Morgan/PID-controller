@@ -15,7 +15,7 @@ class PID():
         self.qprev = self.senseAngle() # initial joint angle q
         self.windupMax = windupMax
 
-    def controller(self, time):
+    def fb_controller(self, time):
         [qd,qdotd] = self.trajectory(time) #get desired angle and desired velocity
         q = self.senseAngle() # sense actual joint angle
         qdot = (q - self.qprev)/self.dt
@@ -28,6 +28,20 @@ class PID():
         tau = self.kp*e + self.kd*edot + self.ki*eint
         self.time = self.time + self.dt
         return tau
+
+    def ff_controller(self, time):
+        [qd,qdotd,qdotdotd] = self.trajectory(time) #get desired angle and desired velocity
+        tau = self.Mtilde(qd)*qdotdotd + self.htilde(qd, qdotd)
+        return tau
+
+
+    def Mtilde(self, qd): 
+        # inertia model
+        pass
+
+    def htilde(self, qd, qdotd):
+        # dynamics that depends nonlinearly on the state
+        pass
     
     def antiWindUp(self):
         if self.windupMax != 0:
