@@ -1,1 +1,1 @@
-from pid_control.PID import *
+from pid_control import *
